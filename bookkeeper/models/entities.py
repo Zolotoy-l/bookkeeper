@@ -5,28 +5,24 @@ from pony.orm import *
 db = Database()
 
 
-class Budget(db.Entity):
+class Category(db.Entity):
     id = PrimaryKey(int, auto=True)
-    monthly = Required(float)
-    weekly = Required(float)
-    daily = Required(float)
+    name = Required(str)
+    expenses = Set('Expense')
+    parent = Optional('Category', reverse='parent')
 
 
 class Expense(db.Entity):
     id = PrimaryKey(int, auto=True)
-    amount = Required(int)
-    expense_date = Required(date)
-    added_date = Required(date)
+    amount = Required(float)
+    expense_date = Required(date, default=date.today())
+    added_date = Required(date, default=date.today())
     comment = Optional(str)
-    category = Required('Category')
+    category = Required(Category)
 
 
-class Category(db.Entity):
+class Budget(db.Entity):
     id = PrimaryKey(int, auto=True)
-    name = Required(str)
-    expenses = Set(Expense)
-    parent = Optional('Category', reverse='parent')
-
-
-
-db.generate_mapping()
+    monthly = Required(float, default=56000)
+    weekly = Required(float, default=14000)
+    daily = Required(float, default=2000)
