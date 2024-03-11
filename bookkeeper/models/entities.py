@@ -7,7 +7,7 @@ db = Database()
 
 class Budget(db.Entity):
     id = PrimaryKey(int, auto=True)
-    moonthly = Required(float)
+    monthly = Required(float)
     weekly = Required(float)
     daily = Required(float)
 
