@@ -8,17 +8,16 @@ db = Database()
 class Category(db.Entity):
     id = PrimaryKey(int, auto=True)
     name = Required(str)
-    expenses = Set('Expense')
-    parent = Optional('Category', reverse='parent')
+    #expenses = Set('Expense')
+    #parent = Optional('Category', reverse='parent')
 
 
 class Expense(db.Entity):
     id = PrimaryKey(int, auto=True)
-    amount = Required(float)
     expense_date = Required(date, default=date.today())
-    added_date = Required(date, default=date.today())
+    amount = Required(float)
+    category = Required(str)    #Category
     comment = Optional(str)
-    category = Required(Category)
 
 
 class Budget(db.Entity):

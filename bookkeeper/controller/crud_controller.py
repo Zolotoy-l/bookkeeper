@@ -18,6 +18,10 @@ class CrudController:
                           monthly=params['monthly'])
             return
 
+        if entity == 'Expense':
+            qh.add_expense(amount=params['amount'], category=params['category'])
+            return
+
         raise NotImplementedError(f'Добавление для сущности {entity} не реализовано!')
 
     def read(self, entity, params=None):

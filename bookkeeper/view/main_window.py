@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QTableWidgetItem,
-                               QPushButton, QHBoxLayout)
+                               QPushButton, QHBoxLayout, QLineEdit)
 import bookkeeper.view.budget_table as bt
 import bookkeeper.view.expenses_table as et
 
@@ -20,6 +20,24 @@ class MainWindow(QMainWindow):
 
         self.layout.addWidget(QLabel('Последние расходы'))
         self.layout.addWidget(self.expenses_table)
+
+        self.amount_layout = QHBoxLayout()
+        self.amount_layout.addWidget(QLabel('Сумма:'))
+        self.add_amount = QLineEdit()
+        self.amount_layout.addWidget(self.add_amount)
+        self.layout.addLayout(self.amount_layout)
+
+        self.category_layout = QHBoxLayout()
+        self.category_layout.addWidget(QLabel('Категория:'))
+        self.add_category = QLineEdit()
+        self.category_layout.addWidget(self.add_category)
+        self.layout.addLayout(self.category_layout)
+
+        self.expense_button_layout = QHBoxLayout()
+        self.add_expense_button = QPushButton('Добавить расходы')
+        self.add_expense_button.clicked.connect(self.add_expense)
+        self.expense_button_layout.addWidget(self.add_expense_button)
+        self.layout.addLayout(self.expense_button_layout)
 
         self.layout.addWidget(QLabel('Бюджет'))
         self.layout.addWidget(self.budget_table)
@@ -50,8 +68,6 @@ class MainWindow(QMainWindow):
         budget_weekly = str(bdgt[1])
         budget_monthly = str(bdgt[2])
 
-        print(budget_daily)
-
         self.budget_table.setItem(0, 1, QTableWidgetItem(budget_daily))
         self.budget_table.setItem(1, 1, QTableWidgetItem(budget_weekly))
         self.budget_table.setItem(2, 1, QTableWidgetItem(budget_monthly))
@@ -61,3 +77,7 @@ class MainWindow(QMainWindow):
                                           'weekly': float(self.budget_table.item(1, 1).text()),
                                           'monthly': float(self.budget_table.item(2, 1).text())})
         self.refresh_budgets()
+
+    def add_expense(self):
+        self.controller.create('Expense', {'amount': float(self.add_amount.text()),
+                                           'category': self.add_category.text()})

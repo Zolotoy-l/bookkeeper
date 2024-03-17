@@ -1,6 +1,6 @@
 from pony.orm import *
-from bookkeeper.models.entities import Budget
-
+from bookkeeper.models.entities import Budget, Expense
+from datetime import date
 
 @db_session
 def add_budget(monthly, weekly, daily):
@@ -18,3 +18,11 @@ def get_budget():
         return tuple([budget.daily, budget.weekly, budget.monthly])  # TODO: return the object itself for GUI?
     except Exception as e:
         print(e)  # TODO: This should be sent to GUI in a user-friendly manner
+
+
+@db_session
+def add_expense(amount, category):
+    try:
+        Expense(expense_date=date.today(), amount=amount, category=category)
+    except Exception as e:
+        print(e)
