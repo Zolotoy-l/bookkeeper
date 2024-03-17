@@ -23,6 +23,6 @@ class Expense(db.Entity):
 
 class Budget(db.Entity):
     id = PrimaryKey(int, auto=True)
-    monthly = Required(float, default=56000)
-    weekly = Required(float, default=14000)
     daily = Required(float, default=2000)
+    weekly = Required(float, default=14000)
+    monthly = Required(float, default=56000)
