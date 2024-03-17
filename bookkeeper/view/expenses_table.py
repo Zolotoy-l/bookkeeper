@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import QTableWidget, QHeaderView, QAbstractItemView, QTableWidgetItem
 
 
-def create_table():
-    table = QTableWidget(4, 20)
+def create_table(row_num):
+    table = QTableWidget(4, 0)
     table.setColumnCount(4)
-    table.setRowCount(1)
+    table.setRowCount(row_num)
     table.setHorizontalHeaderLabels(
         "Дата Сумма Категория Комментарий".split())
     header = table.horizontalHeader()

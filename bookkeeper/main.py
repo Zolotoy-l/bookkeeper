@@ -6,9 +6,9 @@ from PySide6.QtWidgets import QApplication
 class App(QApplication):
     def __init__(self):
         super().__init__()
-        self.view = MainWindow()
+        #self.view = MainWindow()
         self.controller = CrudController()
-        self.view.set_controller(self.controller)
+        self.view = MainWindow(self.controller)
         self.view.show()
 
 

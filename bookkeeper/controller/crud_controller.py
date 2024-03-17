@@ -24,9 +24,11 @@ class CrudController:
 
         raise NotImplementedError(f'Добавление для сущности {entity} не реализовано!')
 
-    def read(self, entity, params=None):
+    def read(self, entity, id):
         if entity == 'Budget':
             return qh.get_budget()
+        if entity == 'Expense':
+            return qh.get_expense(id)
 
         raise NotImplementedError(f'Чтение для сущности {entity} не реализовано!')
 
@@ -40,3 +42,9 @@ class CrudController:
 
     def delete(self, entity):
         raise NotImplementedError(f'Удаление для сущности {entity} не реализовано!')
+
+    def get_count(self, entity):
+        if entity == 'Expense':
+            return qh.get_expense_count()
+
+        raise NotImplementedError(f'Количество объектов для сущности {entity} не реализовано!')
