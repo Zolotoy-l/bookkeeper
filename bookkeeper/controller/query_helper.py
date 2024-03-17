@@ -27,7 +27,7 @@ def get_budget():
 @db_session
 def add_expense(amount, category):
     try:
-        Expense(expense_date=date.today(), amount=amount, category=category, comment='-')
+        Expense(expense_date=date.today(), amount=amount, category=category, comment='')
     except Exception as e:
         print(e)
 
@@ -50,5 +50,17 @@ def get_expense_count():
             return str_num
         else:
             return 0
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def update_expense(expense_date, amount, category, comment, row):
+    try:
+        Expense[row].expense_date = expense_date
+        Expense[row].amount = amount
+        Expense[row].category = category
+        Expense[row].comment = comment
+        commit()
     except Exception as e:
         print(e)

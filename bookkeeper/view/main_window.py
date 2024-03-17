@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         self.refresh_budgets()
         self.refresh_expenses()
 
+        self.expenses_table.itemChanged.connect(self.update_expenses)
 
     def set_controller(self, controller):
         self.controller = controller
@@ -101,3 +102,16 @@ class MainWindow(QMainWindow):
                                            'category': self.add_category.text()})
         self.expenses_table.setRowCount(self.expenses_table.rowCount()+1)
         self.refresh_expenses()
+
+    def update_expenses(self, item):
+        row = item.row()
+        if (self.expenses_table.item(row, 1) is not None and
+            self.expenses_table.item(row, 2) is not None and
+                self.expenses_table.item(row, 3) is not None):
+            num_row = self.controller.get_count('Expense')
+            self.controller.update('Expense', {'date': (self.expenses_table.item(row, 0).text()),
+                                               'amount': float(self.expenses_table.item(row, 1).text()),
+                                               'category': str(self.expenses_table.item(row, 2).text()),
+                                               'comment': (self.expenses_table.item(row, 3).text()),
+                                               'row': num_row-row})
+        #self.refresh_expenses()

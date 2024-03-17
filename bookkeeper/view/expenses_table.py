@@ -17,11 +17,11 @@ def create_table(row_num):
     header.setSectionResizeMode(
         3, QHeaderView.Stretch)
     table.setEditTriggers(
-        QAbstractItemView.NoEditTriggers)
+        QAbstractItemView.DoubleClicked)
     table.verticalHeader().hide()
 
     for i in range(table.rowCount()):
         for j in range(table.columnCount()):
-            table.setItem(i, j, QTableWidgetItem('-'))
+            table.setItem(i, j, QTableWidgetItem(''))
 
     return table
