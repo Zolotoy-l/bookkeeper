@@ -27,11 +27,11 @@ class MainWindow(QMainWindow):
         self.amount_layout.addWidget(self.add_amount)
         self.layout.addLayout(self.amount_layout)
 
-        self.category_layout = QHBoxLayout()
+        """self.category_layout = QHBoxLayout()
         self.category_layout.addWidget(QLabel('Категория:'))
         self.select_category = QLineEdit()
         self.category_layout.addWidget(self.select_category)
-        self.layout.addLayout(self.category_layout)
+        self.layout.addLayout(self.category_layout)"""
 
         self.category = QComboBox(self)
         self.layout.addWidget(QLabel('Выберите категорию расхода:'))
@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
 
     def add_expense(self):
         self.controller.create('Expense', {'amount': float(self.add_amount.text()),
-                                           'category': self.add_category.text()})
+                                           'category': self.category.currentText()})
         self.expenses_table.setRowCount(self.expenses_table.rowCount()+1)
         self.refresh_expenses()
 
