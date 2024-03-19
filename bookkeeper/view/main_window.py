@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QTableWidgetItem,
-                               QPushButton, QHBoxLayout, QLineEdit)
+                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog)
 import bookkeeper.view.budget_table as bt
 import bookkeeper.view.expenses_table as et
 
@@ -29,14 +29,22 @@ class MainWindow(QMainWindow):
 
         self.category_layout = QHBoxLayout()
         self.category_layout.addWidget(QLabel('Категория:'))
-        self.add_category = QLineEdit()
-        self.category_layout.addWidget(self.add_category)
+        self.select_category = QLineEdit()
+        self.category_layout.addWidget(self.select_category)
         self.layout.addLayout(self.category_layout)
+
+        self.category = QComboBox(self)
+        self.layout.addWidget(QLabel('Выберите категорию расхода:'))
+        self.layout.addWidget(self.category)
 
         self.expense_button_layout = QHBoxLayout()
         self.add_expense_button = QPushButton('Добавить расходы')
         self.add_expense_button.clicked.connect(self.add_expense)
         self.expense_button_layout.addWidget(self.add_expense_button)
+
+        self.add_category_button = QPushButton('Добавить категорию')
+        self.add_category_button.clicked.connect(self.add_category)
+        self.expense_button_layout.addWidget(self.add_category_button)
         self.layout.addLayout(self.expense_button_layout)
 
         self.layout.addWidget(QLabel('Бюджет'))
@@ -61,11 +69,9 @@ class MainWindow(QMainWindow):
 
         self.refresh_budgets()
         self.refresh_expenses()
+        self.refresh_categories()
 
         self.expenses_table.itemChanged.connect(self.update_expenses)
-
-    def set_controller(self, controller):
-        self.controller = controller
 
     def refresh_budgets(self):
         bdgt = self.controller.read('Budget', None)
@@ -115,3 +121,20 @@ class MainWindow(QMainWindow):
                                                'comment': (self.expenses_table.item(row, 3).text()),
                                                'row': num_row-row})
         #self.refresh_expenses()
+
+    def add_category(self):
+        dlg = QInputDialog(self)
+        dlg.resize(200, 100)
+        dlg.setWindowTitle("Добавление категории")
+        dlg.setLabelText("Введите название категории:")
+        dlg.setOkButtonText("Подтвердить")
+        dlg.setCancelButtonText("Отмена")
+        ok = dlg.exec()
+        text = dlg.textValue()
+        if ok:
+            self.controller.create('Category', {'name': text})
+            self.refresh_categories()
+
+    def refresh_categories(self):
+        cats = self.controller.read('Category', None)
+        self.category.addItems(cats)

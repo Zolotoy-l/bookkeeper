@@ -1,5 +1,5 @@
 from pony.orm import *
-from bookkeeper.models.entities import Budget, Expense
+from bookkeeper.models.entities import Budget, Expense, Category
 from datetime import date
 
 
@@ -62,5 +62,24 @@ def update_expense(expense_date, amount, category, comment, row):
         Expense[row].category = category
         Expense[row].comment = comment
         commit()
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def add_category(name):
+    try:
+        Category(name=name)
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def get_category():
+    try:
+        q = Category.select(lambda c: c.name is not None)
+        cats = list(q)
+
+        return tuple("".join(cat.name) for cat in cats)
     except Exception as e:
         print(e)
