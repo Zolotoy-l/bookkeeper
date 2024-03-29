@@ -101,8 +101,9 @@ class MainWindow(QMainWindow):
 
     def refresh_expenses(self):
         num_row = self.controller.get_count('Expense')
+        self.expenses_table.setRowCount(num_row)
         for i in range(num_row):
-            expn = self.controller.read('Expense', i+1)
+            expn = self.controller.read('Expense', i)
             expn_date = str(expn[0])
             expn_amount = str(expn[1])
             expn_category = str(expn[2])
@@ -114,10 +115,13 @@ class MainWindow(QMainWindow):
             self.expenses_table.setItem(num_row-i-1, 3, QTableWidgetItem(expn_comment))
 
     def add_expense(self):
-        self.controller.create('Expense', {'amount': float(self.add_amount.text()),
-                                           'category': self.category.currentText()})
-        self.expenses_table.setRowCount(self.expenses_table.rowCount()+1)
-        self.refresh_expenses()
+        try:
+            self.controller.create('Expense', {'amount': float(self.add_amount.text()),
+                                               'category': self.category.currentText()})
+            self.expenses_table.setRowCount(self.expenses_table.rowCount() + 1)
+            self.refresh_expenses()
+        except ValueError:
+            print("Inserted expense amount is not float")
 
     def update_expenses(self, item):
         row = item.row()
@@ -129,7 +133,7 @@ class MainWindow(QMainWindow):
                                                'amount': float(self.expenses_table.item(row, 1).text()),
                                                'category': str(self.expenses_table.item(row, 2).text()),
                                                'comment': (self.expenses_table.item(row, 3).text()),
-                                               'row': num_row-row})
+                                               'row': num_row-row-1})#TODO: check num row
         #self.refresh_expenses()
 
     def delete_expense(self):
@@ -140,11 +144,11 @@ class MainWindow(QMainWindow):
         dlg.setOkButtonText("Подтвердить")
         dlg.setCancelButtonText("Отмена")
         ok = dlg.exec()
-        row = dlg.intValue()
+        row = int(dlg.textValue())
         if ok:
             num_row = self.controller.get_count('Expense')
             self.controller.delete('Expense', {'row': num_row-row})
-            self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
+            #self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
             self.refresh_expenses()
 
     def add_category(self):
@@ -161,10 +165,13 @@ class MainWindow(QMainWindow):
             self.refresh_categories()
 
     def refresh_categories(self):
+        for i in range(self.category.count()):
+            self.category.removeItem(0)
         cats = self.controller.read('Category', None)
-        for cat in cats:
-            if self.category.findText(cat) == -1:
-                self.category.addItem(cat)
+        self.category.addItems(cats)
+        #for cat in cats:
+        #    if self.category.findText(cat) == -1:
+        #        self.category.addItem(cat)
 
     def delete_category(self):
         dlg = QInputDialog(self)
@@ -178,3 +185,6 @@ class MainWindow(QMainWindow):
         if ok:
             self.controller.delete('Category', {'name': text})
             self.refresh_categories()
+            self.refresh_expenses()
+
+#TODO: add category update?

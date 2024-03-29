@@ -37,9 +37,10 @@ def add_expense(amount, category):
 
 
 @db_session
-def get_expense(id):
+def get_expense(row):
     try:
-        expn = Expense.get(id=id)
+        expenses = list(Expense.select().order_by(Expense.id))
+        expn = expenses[row]
         return tuple([expn.expense_date, expn.amount, expn.category.name, expn.comment])
     except Exception as e:
         print(e)
@@ -48,12 +49,8 @@ def get_expense(id):
 @db_session
 def get_expense_count():
     try:
-        e = Expense.select().order_by(desc(Expense.id))[:1]
-        if len(e):
-            str_num = int(e[0].id)
-            return str_num
-        else:
-            return 0
+        e = list(Expense.select().order_by(Expense.id))
+        return len(e)
     except Exception as e:
         print(e)
 
@@ -63,13 +60,16 @@ def update_expense(expense_date, amount, category, comment, row):
     try:
         q = Category.select(lambda c: c.name is category)
         cats = list(q)
+        expenses = list(Expense.select().order_by(Expense.id))
+        expense = expenses[row]
+
         if len(cats) == 1:
             cat = cats[0]
-            Expense[row].category = cat
+            expense.category = cat
 
-        Expense[row].expense_date = expense_date
-        Expense[row].amount = amount
-        Expense[row].comment = comment
+        expense.expense_date = expense_date
+        expense.amount = amount
+        expense.comment = comment
         commit()
     except Exception as e:
         print(e)
@@ -78,7 +78,10 @@ def update_expense(expense_date, amount, category, comment, row):
 @db_session
 def delete_expense(row):
     try:
-        Expense[row].delete()
+        expenses = list(Expense.select().order_by(Expense.id))
+        expense = expenses[row]
+        expense.delete()
+
         commit()
     except Exception as e:
         print(e)
@@ -87,7 +90,12 @@ def delete_expense(row):
 @db_session
 def add_category(name):
     try:
-        Category(name=name)
+        q = Category.select(lambda c: c.name is name)
+        cats = list(q)
+        if len(cats) == 0:
+            Category(name=name)
+        else:
+            print("There is category with the name", name, "already")
     except Exception as e:
         print(e)
 
@@ -99,5 +107,17 @@ def get_category():
         cats = list(q)
 
         return tuple("".join(cat.name) for cat in cats)
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def delete_category(name): #TODO: try pny cascase delete
+    try:
+        cat = Category.get(name=name)
+        if cat is not None:
+            Expense.select(lambda e: e in cat.expenses).delete(bulk=True)
+            cat.delete()
+            commit()
     except Exception as e:
         print(e)
