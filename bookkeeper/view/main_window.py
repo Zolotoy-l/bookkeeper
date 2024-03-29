@@ -47,6 +47,16 @@ class MainWindow(QMainWindow):
         self.expense_button_layout.addWidget(self.add_category_button)
         self.layout.addLayout(self.expense_button_layout)
 
+        self.delete_button_layout = QHBoxLayout()
+        self.add_expense_button = QPushButton('Удалить расходы')
+        self.add_expense_button.clicked.connect(self.delete_expense)
+        self.delete_button_layout.addWidget(self.add_expense_button)
+
+        self.add_category_button = QPushButton('Удалить категорию')
+        self.add_category_button.clicked.connect(self.delete_category)
+        self.delete_button_layout.addWidget(self.add_category_button)
+        self.layout.addLayout(self.delete_button_layout)
+
         self.layout.addWidget(QLabel('Бюджет'))
         self.layout.addWidget(self.budget_table)
 
@@ -122,6 +132,21 @@ class MainWindow(QMainWindow):
                                                'row': num_row-row})
         #self.refresh_expenses()
 
+    def delete_expense(self):
+        dlg = QInputDialog(self)
+        dlg.resize(200, 100)
+        dlg.setWindowTitle("Удаление расхода")
+        dlg.setLabelText("Введите номер строки расхода:")
+        dlg.setOkButtonText("Подтвердить")
+        dlg.setCancelButtonText("Отмена")
+        ok = dlg.exec()
+        row = dlg.intValue()
+        if ok:
+            num_row = self.controller.get_count('Expense')
+            self.controller.delete('Expense', {'row': num_row-row})
+            self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
+            self.refresh_expenses()
+
     def add_category(self):
         dlg = QInputDialog(self)
         dlg.resize(200, 100)
@@ -137,4 +162,17 @@ class MainWindow(QMainWindow):
 
     def refresh_categories(self):
         cats = self.controller.read('Category', None)
-        self.category.addItems(cats)
+        self.category.addItems(cats) #TODO delete duplication
+
+    def delete_category(self):
+        dlg = QInputDialog(self)
+        dlg.resize(200, 100)
+        dlg.setWindowTitle("Удаление категории")
+        dlg.setLabelText("Введите название категории:")
+        dlg.setOkButtonText("Подтвердить")
+        dlg.setCancelButtonText("Отмена")
+        ok = dlg.exec()
+        text = dlg.textValue()
+        if ok:
+            self.controller.delete('Category', {'name': text})
+            self.refresh_categories()

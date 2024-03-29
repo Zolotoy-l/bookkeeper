@@ -50,7 +50,10 @@ class CrudController:
 
         raise NotImplementedError(f'Изменение для сущности {entity} не реализовано!')
 
-    def delete(self, entity):
+    def delete(self, entity, params):
+        if entity == 'Expense':
+            qh.delete_expense(row=params['row'])
+            return
         raise NotImplementedError(f'Удаление для сущности {entity} не реализовано!')
 
     def get_count(self, entity):

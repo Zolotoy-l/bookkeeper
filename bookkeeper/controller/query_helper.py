@@ -27,7 +27,11 @@ def get_budget():
 @db_session
 def add_expense(amount, category):
     try:
-        Expense(expense_date=date.today(), amount=amount, category=category, comment='')
+        q = Category.select(lambda c: c.name is category)
+        cats = list(q)
+        if len(cats) == 1:
+            cat = cats[0]
+            Expense(expense_date=date.today(), amount=amount, category=cat, comment='')
     except Exception as e:
         print(e)
 
@@ -36,7 +40,7 @@ def add_expense(amount, category):
 def get_expense(id):
     try:
         expn = Expense.get(id=id)
-        return tuple([expn.expense_date, expn.amount, expn.category, expn.comment])
+        return tuple([expn.expense_date, expn.amount, expn.category.name, expn.comment])
     except Exception as e:
         print(e)
 
@@ -57,10 +61,24 @@ def get_expense_count():
 @db_session
 def update_expense(expense_date, amount, category, comment, row):
     try:
+        q = Category.select(lambda c: c.name is category)
+        cats = list(q)
+        if len(cats) == 1:
+            cat = cats[0]
+            Expense[row].category = cat
+
         Expense[row].expense_date = expense_date
         Expense[row].amount = amount
-        Expense[row].category = category
         Expense[row].comment = comment
+        commit()
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def delete_expense(row):
+    try:
+        Expense[row].delete()
         commit()
     except Exception as e:
         print(e)
