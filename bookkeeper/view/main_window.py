@@ -162,7 +162,9 @@ class MainWindow(QMainWindow):
 
     def refresh_categories(self):
         cats = self.controller.read('Category', None)
-        self.category.addItems(cats) #TODO delete duplication
+        for cat in cats:
+            if self.category.findText(cat) == -1:
+                self.category.addItem(cat)
 
     def delete_category(self):
         dlg = QInputDialog(self)
