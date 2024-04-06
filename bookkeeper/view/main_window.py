@@ -1,5 +1,7 @@
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QTableWidgetItem,
-                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog, QDialog)
+                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog,
+                               QDialog)
 import bookkeeper.view.budget_table as bt
 import bookkeeper.view.expenses_table as et
 
@@ -26,12 +28,6 @@ class MainWindow(QMainWindow):
         self.add_amount = QLineEdit()
         self.amount_layout.addWidget(self.add_amount)
         self.layout.addLayout(self.amount_layout)
-
-        """self.category_layout = QHBoxLayout()
-        self.category_layout.addWidget(QLabel('Категория:'))
-        self.select_category = QLineEdit()
-        self.category_layout.addWidget(self.select_category)
-        self.layout.addLayout(self.category_layout)"""
 
         self.category = QComboBox(self)
         self.layout.addWidget(QLabel('Выберите категорию расхода:'))
@@ -97,6 +93,30 @@ class MainWindow(QMainWindow):
         self.budget_table.setItem(1, 1, QTableWidgetItem(budget_weekly))
         self.budget_table.setItem(2, 1, QTableWidgetItem(budget_monthly))
 
+        expense_sum = self.controller.read('Expense_sum', None)
+        sum_daily = str(expense_sum[0])
+        sum_weekly = str(expense_sum[1])
+        sum_monthly = str(expense_sum[2])
+
+        self.budget_table.setItem(0, 0, QTableWidgetItem(sum_daily))
+        self.budget_table.setItem(1, 0, QTableWidgetItem(sum_weekly))
+        self.budget_table.setItem(2, 0, QTableWidgetItem(sum_monthly))
+
+        if expense_sum[0] > bdgt[0]:
+            self.budget_table.item(0, 0).setForeground(QColor('red'))
+        else:
+            self.budget_table.item(0, 0).setForeground(QColor('black'))
+
+        if expense_sum[1] > bdgt[1]:
+            self.budget_table.item(1, 0).setForeground(QColor('red'))
+        else:
+            self.budget_table.item(1, 0).setForeground(QColor('black'))
+
+        if expense_sum[2] > bdgt[2]:
+            self.budget_table.item(2, 0).setForeground(QColor('red'))
+        else:
+            self.budget_table.item(2, 0).setForeground(QColor('black'))
+
     def update_budgets(self):
         self.controller.update('Budget', {'daily': float(self.budget_table.item(0, 1).text()),
                                           'weekly': float(self.budget_table.item(1, 1).text()),
@@ -113,10 +133,10 @@ class MainWindow(QMainWindow):
             expn_category = str(expn[2])
             expn_comment = str(expn[3])
 
-            self.expenses_table.setItem(num_row-i-1, 0, QTableWidgetItem(expn_date))
-            self.expenses_table.setItem(num_row-i-1, 1, QTableWidgetItem(expn_amount))
-            self.expenses_table.setItem(num_row-i-1, 2, QTableWidgetItem(expn_category))
-            self.expenses_table.setItem(num_row-i-1, 3, QTableWidgetItem(expn_comment))
+            self.expenses_table.setItem(num_row - i - 1, 0, QTableWidgetItem(expn_date))
+            self.expenses_table.setItem(num_row - i - 1, 1, QTableWidgetItem(expn_amount))
+            self.expenses_table.setItem(num_row - i - 1, 2, QTableWidgetItem(expn_category))
+            self.expenses_table.setItem(num_row - i - 1, 3, QTableWidgetItem(expn_comment))
 
     def add_expense(self):
         try:
@@ -124,21 +144,22 @@ class MainWindow(QMainWindow):
                                                'category': self.category.currentText()})
             self.expenses_table.setRowCount(self.expenses_table.rowCount() + 1)
             self.refresh_expenses()
+            self.refresh_budgets()
         except ValueError:
             print("Inserted expense amount is not float")
 
     def update_expenses(self, item):
         row = item.row()
         if (self.expenses_table.item(row, 1) is not None and
-            self.expenses_table.item(row, 2) is not None and
+                self.expenses_table.item(row, 2) is not None and
                 self.expenses_table.item(row, 3) is not None):
             num_row = self.controller.get_count('Expense')
             self.controller.update('Expense', {'date': (self.expenses_table.item(row, 0).text()),
                                                'amount': float(self.expenses_table.item(row, 1).text()),
                                                'category': str(self.expenses_table.item(row, 2).text()),
                                                'comment': (self.expenses_table.item(row, 3).text()),
-                                               'row': num_row-row-1})#TODO: check num row
-        #self.refresh_expenses()
+                                               'row': num_row - row - 1})
+            self.refresh_budgets()
 
     def delete_expense(self):
         dlg = QInputDialog(self)
@@ -151,9 +172,10 @@ class MainWindow(QMainWindow):
         row = int(dlg.textValue())
         if ok:
             num_row = self.controller.get_count('Expense')
-            self.controller.delete('Expense', {'row': num_row-row})
-            #self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
+            self.controller.delete('Expense', {'row': num_row - row})
+            # self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
             self.refresh_expenses()
+            self.refresh_budgets()
 
     def add_category(self):
         dlg = QInputDialog(self)
@@ -173,7 +195,7 @@ class MainWindow(QMainWindow):
             self.category.removeItem(0)
         cats = self.controller.read('Category', None)
         self.category.addItems(cats)
-        #for cat in cats:
+        # for cat in cats:
         #    if self.category.findText(cat) == -1:
         #        self.category.addItem(cat)
 
@@ -190,6 +212,7 @@ class MainWindow(QMainWindow):
             self.controller.delete('Category', {'name': text})
             self.refresh_categories()
             self.refresh_expenses()
+            self.refresh_budgets()
 
     def update_category(self):
         dlg = QDialog(self)
@@ -230,3 +253,4 @@ class MainWindow(QMainWindow):
                                                 'new_name': new_name})
             self.refresh_categories()
             self.refresh_expenses()
+            self.refresh_budgets()

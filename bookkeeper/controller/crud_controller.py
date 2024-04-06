@@ -35,6 +35,8 @@ class CrudController:
             return qh.get_expense(row)
         if entity == 'Category':
             return qh.get_category()
+        if entity == 'Expense_sum':
+            return qh.get_expense_sum()
 
         raise NotImplementedError(f'Чтение для сущности {entity} не реализовано!')
 

@@ -1,6 +1,6 @@
 from pony.orm import *
 from bookkeeper.models.entities import Budget, Expense, Category
-from datetime import date
+from datetime import date, timedelta
 
 
 @db_session
@@ -112,7 +112,7 @@ def get_category():
 
 
 @db_session
-def delete_category(name): #TODO: try pony cascase delete
+def delete_category(name):
     try:
         cat = Category.get(name=name)
         if cat is not None:
@@ -131,5 +131,27 @@ def update_category(prev_name, new_name):
         if cat is not None and cat_alt is None:
             cat.name = new_name
             commit()
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def get_expense_sum():
+    try:
+        expenses = Expense.select()[:]
+        sum_day = 0
+        sum_week = 0
+        sum_month = 0
+        for e in expenses:
+            if e.expense_date == date.today():
+                sum_day += e.amount
+            if e.expense_date.month == date.today().month:
+                if e.expense_date.year == date.today().year:
+                    if date.today().day - e.expense_date.day >= 0:
+                        sum_month += e.amount
+                        if 7 > date.today().day - e.expense_date.day:
+                            sum_week += e.amount
+
+        return tuple([sum_day, sum_week, sum_month])
     except Exception as e:
         print(e)
