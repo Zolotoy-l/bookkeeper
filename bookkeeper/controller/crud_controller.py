@@ -47,6 +47,9 @@ class CrudController:
             qh.update_expense(expense_date=params['date'], amount=params['amount'],
                               category=params['category'], comment=params['comment'], row=params['row'])
             return
+        if entity == 'Category':
+            qh.update_category(prev_name=params['prev_name'], new_name=params['new_name'])
+            return
 
         raise NotImplementedError(f'Изменение для сущности {entity} не реализовано!')
 

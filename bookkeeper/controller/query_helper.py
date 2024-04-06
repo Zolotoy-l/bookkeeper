@@ -112,12 +112,24 @@ def get_category():
 
 
 @db_session
-def delete_category(name): #TODO: try pny cascase delete
+def delete_category(name): #TODO: try pony cascase delete
     try:
         cat = Category.get(name=name)
         if cat is not None:
             Expense.select(lambda e: e in cat.expenses).delete(bulk=True)
             cat.delete()
+            commit()
+    except Exception as e:
+        print(e)
+
+
+@db_session
+def update_category(prev_name, new_name):
+    try:
+        cat = Category.get(name=prev_name)
+        cat_alt = Category.get(name=new_name)
+        if cat is not None and cat_alt is None:
+            cat.name = new_name
             commit()
     except Exception as e:
         print(e)

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QTableWidgetItem,
-                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog)
+                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog, QDialog)
 import bookkeeper.view.budget_table as bt
 import bookkeeper.view.expenses_table as et
 
@@ -42,20 +42,24 @@ class MainWindow(QMainWindow):
         self.add_expense_button.clicked.connect(self.add_expense)
         self.expense_button_layout.addWidget(self.add_expense_button)
 
-        self.add_category_button = QPushButton('Добавить категорию')
-        self.add_category_button.clicked.connect(self.add_category)
-        self.expense_button_layout.addWidget(self.add_category_button)
+        self.delete_expense_button = QPushButton('Удалить расходы')
+        self.delete_expense_button.clicked.connect(self.delete_expense)
+        self.expense_button_layout.addWidget(self.delete_expense_button)
         self.layout.addLayout(self.expense_button_layout)
 
-        self.delete_button_layout = QHBoxLayout()
-        self.add_expense_button = QPushButton('Удалить расходы')
-        self.add_expense_button.clicked.connect(self.delete_expense)
-        self.delete_button_layout.addWidget(self.add_expense_button)
+        self.category_button_layout = QHBoxLayout()
+        self.add_category_button = QPushButton('Добавить категорию')
+        self.add_category_button.clicked.connect(self.add_category)
+        self.category_button_layout.addWidget(self.add_category_button)
 
-        self.add_category_button = QPushButton('Удалить категорию')
-        self.add_category_button.clicked.connect(self.delete_category)
-        self.delete_button_layout.addWidget(self.add_category_button)
-        self.layout.addLayout(self.delete_button_layout)
+        self.update_category_button = QPushButton('Обновить категорию')
+        self.update_category_button.clicked.connect(self.update_category)
+        self.category_button_layout.addWidget(self.update_category_button)
+
+        self.delete_category_button = QPushButton('Удалить категорию')
+        self.delete_category_button.clicked.connect(self.delete_category)
+        self.category_button_layout.addWidget(self.delete_category_button)
+        self.layout.addLayout(self.category_button_layout)
 
         self.layout.addWidget(QLabel('Бюджет'))
         self.layout.addWidget(self.budget_table)
@@ -187,4 +191,42 @@ class MainWindow(QMainWindow):
             self.refresh_categories()
             self.refresh_expenses()
 
-#TODO: add category update?
+    def update_category(self):
+        dlg = QDialog(self)
+        dlg.resize(200, 100)
+        dlg.setWindowTitle("Обновление категории")
+        dlg.setModal(True)
+
+        layout = QVBoxLayout()
+
+        label = QLabel("Название категории:")
+        layout.addWidget(label)
+        input_prev_name = QLineEdit()
+        layout.addWidget(input_prev_name)
+
+        label = QLabel("Новое название категории:")
+        layout.addWidget(label)
+        input_new_name = QLineEdit()
+        layout.addWidget(input_new_name)
+
+        button_layout = QHBoxLayout()
+        accept_button = QPushButton('Подтвердить')
+        accept_button.clicked.connect(dlg.accept)
+        button_layout.addWidget(accept_button)
+
+        reject_button = QPushButton('Отмена')
+        reject_button.clicked.connect(dlg.reject)
+        button_layout.addWidget(reject_button)
+        layout.addLayout(button_layout)
+
+        dlg.setLayout(layout)
+
+        ok = dlg.exec()
+
+        prev_name = input_prev_name.text()
+        new_name = input_new_name.text()
+        if ok:
+            self.controller.update('Category', {'prev_name': prev_name,
+                                                'new_name': new_name})
+            self.refresh_categories()
+            self.refresh_expenses()
