@@ -1,3 +1,4 @@
+"""Main bookkeeper window"""
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                                QLabel, QTableWidgetItem, QPushButton,

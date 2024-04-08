@@ -1,7 +1,7 @@
 """CRUD controller functions"""
 from pony.orm import *
 from bookkeeper.models.entities import Budget, Expense, Category
-from datetime import date, timedelta
+from datetime import date
 
 
 @db_session
@@ -128,7 +128,7 @@ def delete_category(name):
     try:
         cat = Category.get(name=name)
         if cat is not None:
-            Expense.select(lambda e: e in cat.expenses).delete(bulk=True)
+            Expense.select(lambda d: d in cat.expenses).delete(bulk=True)
             cat.delete()
             commit()
     except Exception as e:

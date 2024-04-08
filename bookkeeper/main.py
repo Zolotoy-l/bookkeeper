@@ -1,8 +1,8 @@
 """Main file, that creates Main window
    and starts Bookkeeper application"""
-from controller.crud_controller import CrudController
-from view.main_window import MainWindow
 from PySide6.QtWidgets import QApplication
+from bookkeeper.controller.crud_controller import CrudController
+from bookkeeper.view.main_window import MainWindow
 
 
 class App(QApplication):
