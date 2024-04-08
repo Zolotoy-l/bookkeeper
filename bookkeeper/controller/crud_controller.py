@@ -6,7 +6,7 @@ from bookkeeper.view.main_window import MainWindow
 class CrudController:
     def __init__(self):
         try:
-            db.bind(provider='sqlite', filename='../database.sqlite', create_db=True)  # TODO: Move DB file name to config / dotenv
+            db.bind(provider='sqlite', filename='../database.sqlite', create_db=True)
             db.generate_mapping(create_tables=True)
 
         except Exception as e:

@@ -18,7 +18,6 @@ def create_table(row_num):
         3, QHeaderView.Stretch)
     table.setEditTriggers(
         QAbstractItemView.DoubleClicked)
-    #table.verticalHeader().hide()
 
     for i in range(table.rowCount()):
         for j in range(table.columnCount()):
