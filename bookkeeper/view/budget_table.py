@@ -1,7 +1,10 @@
-from PySide6.QtWidgets import QTableWidget, QHeaderView, QAbstractItemView, QTableWidgetItem
+"""Budget GUI table"""
+from PySide6.QtWidgets import (QTableWidget, QHeaderView,
+                               QAbstractItemView, QTableWidgetItem)
 
 
 def create_table():
+    """create budget GUI table"""
     table = QTableWidget(4, 20)
     table.setColumnCount(2)
     table.setRowCount(3)

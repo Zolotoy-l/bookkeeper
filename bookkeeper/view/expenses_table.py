@@ -1,7 +1,10 @@
-from PySide6.QtWidgets import QTableWidget, QHeaderView, QAbstractItemView, QTableWidgetItem
+"""Expenses table GUI"""
+from PySide6.QtWidgets import (QTableWidget, QHeaderView,
+                               QAbstractItemView, QTableWidgetItem)
 
 
 def create_table(row_num):
+    """create GUI expenses table"""
     table = QTableWidget(4, 0)
     table.setColumnCount(4)
     table.setRowCount(row_num)

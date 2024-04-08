@@ -1,3 +1,4 @@
+"""CRUD controller functions"""
 from pony.orm import *
 from bookkeeper.models.entities import Budget, Expense, Category
 from datetime import date, timedelta
@@ -5,6 +6,7 @@ from datetime import date, timedelta
 
 @db_session
 def add_budget(monthly, weekly, daily):
+    """add budget to db"""
     try:
         Budget(daily=daily, weekly=weekly, monthly=monthly)
     except Exception as e:
@@ -13,19 +15,21 @@ def add_budget(monthly, weekly, daily):
 
 @db_session
 def get_budget():
+    """get budget data from db and return it"""
     try:
         q = Budget.select().order_by(desc(Budget.id)).limit(1).to_list()
         if len(q):
             budget = q[0]
             return tuple([budget.daily, budget.weekly, budget.monthly])
         else:
-            return tuple([0,0,0])
+            return tuple([0, 0, 0])
     except Exception as e:
         print(e)
 
 
 @db_session
 def add_expense(amount, category):
+    """add expense to db"""
     try:
         q = Category.select(lambda c: c.name is category)
         cats = list(q)
@@ -38,6 +42,7 @@ def add_expense(amount, category):
 
 @db_session
 def get_expense(row):
+    """get expense at row from db and return it"""
     try:
         expenses = list(Expense.select().order_by(Expense.id))
         expn = expenses[row]
@@ -48,6 +53,7 @@ def get_expense(row):
 
 @db_session
 def get_expense_count():
+    """return number of expenses in db"""
     try:
         e = list(Expense.select().order_by(Expense.id))
         return len(e)
@@ -57,6 +63,7 @@ def get_expense_count():
 
 @db_session
 def update_expense(expense_date, amount, category, comment, row):
+    """update info of expense in db"""
     try:
         q = Category.select(lambda c: c.name is category)
         cats = list(q)
@@ -77,6 +84,7 @@ def update_expense(expense_date, amount, category, comment, row):
 
 @db_session
 def delete_expense(row):
+    """delete expense from db"""
     try:
         expenses = list(Expense.select().order_by(Expense.id))
         expense = expenses[row]
@@ -89,6 +97,7 @@ def delete_expense(row):
 
 @db_session
 def add_category(name):
+    """add category to db"""
     try:
         q = Category.select(lambda c: c.name is name)
         cats = list(q)
@@ -102,6 +111,7 @@ def add_category(name):
 
 @db_session
 def get_category():
+    """return category from db"""
     try:
         q = Category.select(lambda c: c.name is not None)
         cats = list(q)
@@ -113,6 +123,8 @@ def get_category():
 
 @db_session
 def delete_category(name):
+    """delete category from db
+       delete expenses with same category"""
     try:
         cat = Category.get(name=name)
         if cat is not None:
@@ -125,6 +137,7 @@ def delete_category(name):
 
 @db_session
 def update_category(prev_name, new_name):
+    """rename category in db"""
     try:
         cat = Category.get(name=prev_name)
         cat_alt = Category.get(name=new_name)
@@ -137,6 +150,7 @@ def update_category(prev_name, new_name):
 
 @db_session
 def get_expense_sum():
+    """return sum of expense amount from db"""
     try:
         expenses = Expense.select()[:]
         sum_day = 0

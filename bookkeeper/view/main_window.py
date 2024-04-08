@@ -1,12 +1,14 @@
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QTableWidgetItem,
-                               QPushButton, QHBoxLayout, QLineEdit, QComboBox, QInputDialog,
-                               QDialog)
+from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
+                               QLabel, QTableWidgetItem, QPushButton,
+                               QHBoxLayout, QLineEdit, QComboBox,
+                               QInputDialog, QDialog)
 import bookkeeper.view.budget_table as bt
 import bookkeeper.view.expenses_table as et
 
 
 class MainWindow(QMainWindow):
+    """Main window logic and GUI"""
     def __init__(self, controller):
         super().__init__()
 
@@ -33,28 +35,10 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(QLabel('Выберите категорию расхода:'))
         self.layout.addWidget(self.category)
 
-        self.expense_button_layout = QHBoxLayout()
-        self.add_expense_button = QPushButton('Добавить расходы')
-        self.add_expense_button.clicked.connect(self.add_expense)
-        self.expense_button_layout.addWidget(self.add_expense_button)
-
-        self.delete_expense_button = QPushButton('Удалить расходы')
-        self.delete_expense_button.clicked.connect(self.delete_expense)
-        self.expense_button_layout.addWidget(self.delete_expense_button)
+        self.expense_button_layout = self.expenses_button_layout_create()
         self.layout.addLayout(self.expense_button_layout)
 
-        self.category_button_layout = QHBoxLayout()
-        self.add_category_button = QPushButton('Добавить категорию')
-        self.add_category_button.clicked.connect(self.add_category)
-        self.category_button_layout.addWidget(self.add_category_button)
-
-        self.update_category_button = QPushButton('Обновить категорию')
-        self.update_category_button.clicked.connect(self.update_category)
-        self.category_button_layout.addWidget(self.update_category_button)
-
-        self.delete_category_button = QPushButton('Удалить категорию')
-        self.delete_category_button.clicked.connect(self.delete_category)
-        self.category_button_layout.addWidget(self.delete_category_button)
+        self.category_button_layout = self.category_button_layout_create()
         self.layout.addLayout(self.category_button_layout)
 
         self.layout.addWidget(QLabel('Бюджет'))
@@ -83,7 +67,36 @@ class MainWindow(QMainWindow):
 
         self.expenses_table.itemChanged.connect(self.update_expenses)
 
+    def expenses_button_layout_create(self):
+        """create layout with expenses buttons"""
+        expense_button_layout = QHBoxLayout()
+        add_expense_button = QPushButton('Добавить расходы')
+        add_expense_button.clicked.connect(self.add_expense)
+        expense_button_layout.addWidget(add_expense_button)
+
+        delete_expense_button = QPushButton('Удалить расходы')
+        delete_expense_button.clicked.connect(self.delete_expense)
+        expense_button_layout.addWidget(delete_expense_button)
+        return expense_button_layout
+
+    def category_button_layout_create(self):
+        """create layout with category buttons"""
+        category_button_layout = QHBoxLayout()
+        add_category_button = QPushButton('Добавить категорию')
+        add_category_button.clicked.connect(self.add_category)
+        category_button_layout.addWidget(add_category_button)
+
+        update_category_button = QPushButton('Обновить категорию')
+        update_category_button.clicked.connect(self.update_category)
+        category_button_layout.addWidget(update_category_button)
+
+        delete_category_button = QPushButton('Удалить категорию')
+        delete_category_button.clicked.connect(self.delete_category)
+        category_button_layout.addWidget(delete_category_button)
+        return category_button_layout
+
     def refresh_budgets(self):
+        """refreshing dates in budget table"""
         bdgt = self.controller.read('Budget', None)
         budget_daily = str(bdgt[0])
         budget_weekly = str(bdgt[1])
@@ -118,12 +131,15 @@ class MainWindow(QMainWindow):
             self.budget_table.item(2, 0).setForeground(QColor('black'))
 
     def update_budgets(self):
-        self.controller.update('Budget', {'daily': float(self.budget_table.item(0, 1).text()),
-                                          'weekly': float(self.budget_table.item(1, 1).text()),
-                                          'monthly': float(self.budget_table.item(2, 1).text())})
+        """update budget data in database"""
+        self.controller.update('Budget',
+                               {'daily': float(self.budget_table.item(0, 1).text()),
+                                'weekly': float(self.budget_table.item(1, 1).text()),
+                                'monthly': float(self.budget_table.item(2, 1).text())})
         self.refresh_budgets()
 
     def refresh_expenses(self):
+        """updates data un GUI expense table"""
         num_row = self.controller.get_count('Expense')
         self.expenses_table.setRowCount(num_row)
         for i in range(num_row):
@@ -133,12 +149,13 @@ class MainWindow(QMainWindow):
             expn_category = str(expn[2])
             expn_comment = str(expn[3])
 
-            self.expenses_table.setItem(num_row - i - 1, 0, QTableWidgetItem(expn_date))
-            self.expenses_table.setItem(num_row - i - 1, 1, QTableWidgetItem(expn_amount))
-            self.expenses_table.setItem(num_row - i - 1, 2, QTableWidgetItem(expn_category))
-            self.expenses_table.setItem(num_row - i - 1, 3, QTableWidgetItem(expn_comment))
+            self.expenses_table.setItem(num_row-i-1, 0, QTableWidgetItem(expn_date))
+            self.expenses_table.setItem(num_row-i-1, 1, QTableWidgetItem(expn_amount))
+            self.expenses_table.setItem(num_row-i-1, 2, QTableWidgetItem(expn_category))
+            self.expenses_table.setItem(num_row-i-1, 3, QTableWidgetItem(expn_comment))
 
     def add_expense(self):
+        """adds expense to database and refreshes budget ant expenses table"""
         try:
             self.controller.create('Expense', {'amount': float(self.add_amount.text()),
                                                'category': self.category.currentText()})
@@ -149,72 +166,77 @@ class MainWindow(QMainWindow):
             print("Inserted expense amount is not float")
 
     def update_expenses(self, item):
+        """updates expenses data in database"""
         row = item.row()
         if (self.expenses_table.item(row, 1) is not None and
                 self.expenses_table.item(row, 2) is not None and
                 self.expenses_table.item(row, 3) is not None):
             num_row = self.controller.get_count('Expense')
-            self.controller.update('Expense', {'date': (self.expenses_table.item(row, 0).text()),
-                                               'amount': float(self.expenses_table.item(row, 1).text()),
-                                               'category': str(self.expenses_table.item(row, 2).text()),
-                                               'comment': (self.expenses_table.item(row, 3).text()),
-                                               'row': num_row - row - 1})
+            self.controller.update('Expense',
+                                   {'date': (self.expenses_table.item(row, 0).text()),
+                                    'amount': float(self.expenses_table.item(row, 1).text()),
+                                    'category': str(self.expenses_table.item(row, 2).text()),
+                                    'comment': (self.expenses_table.item(row, 3).text()),
+                                    'row': num_row - row - 1})
             self.refresh_budgets()
 
     def delete_expense(self):
+        """delete expense from GUI table and db"""
         dlg = QInputDialog(self)
         dlg.resize(200, 100)
         dlg.setWindowTitle("Удаление расхода")
         dlg.setLabelText("Введите номер строки расхода:")
         dlg.setOkButtonText("Подтвердить")
         dlg.setCancelButtonText("Отмена")
-        ok = dlg.exec()
+        fin = dlg.exec()
         row = int(dlg.textValue())
-        if ok:
+        if fin:
             num_row = self.controller.get_count('Expense')
             self.controller.delete('Expense', {'row': num_row - row})
-            # self.expenses_table.setRowCount(self.expenses_table.rowCount() - 1)
             self.refresh_expenses()
             self.refresh_budgets()
 
     def add_category(self):
+        """add new category to combobox"""
         dlg = QInputDialog(self)
         dlg.resize(200, 100)
         dlg.setWindowTitle("Добавление категории")
         dlg.setLabelText("Введите название категории:")
         dlg.setOkButtonText("Подтвердить")
         dlg.setCancelButtonText("Отмена")
-        ok = dlg.exec()
+        fin = dlg.exec()
         text = dlg.textValue()
-        if ok:
+        if fin:
             self.controller.create('Category', {'name': text})
             self.refresh_categories()
 
     def refresh_categories(self):
+        """update categories data in combobox"""
         for i in range(self.category.count()):
             self.category.removeItem(0)
         cats = self.controller.read('Category', None)
         self.category.addItems(cats)
-        # for cat in cats:
-        #    if self.category.findText(cat) == -1:
-        #        self.category.addItem(cat)
 
     def delete_category(self):
+        """delete category from db and combobox,
+           removes all expenses with that category"""
         dlg = QInputDialog(self)
         dlg.resize(200, 100)
         dlg.setWindowTitle("Удаление категории")
         dlg.setLabelText("Введите название категории:")
         dlg.setOkButtonText("Подтвердить")
         dlg.setCancelButtonText("Отмена")
-        ok = dlg.exec()
+        fin = dlg.exec()
         text = dlg.textValue()
-        if ok:
+        if fin:
             self.controller.delete('Category', {'name': text})
             self.refresh_categories()
             self.refresh_expenses()
             self.refresh_budgets()
 
     def update_category(self):
+        """rename category, updates category and expenses
+           with renamed category in dg and gui table"""
         dlg = QDialog(self)
         dlg.resize(200, 100)
         dlg.setWindowTitle("Обновление категории")
@@ -244,11 +266,11 @@ class MainWindow(QMainWindow):
 
         dlg.setLayout(layout)
 
-        ok = dlg.exec()
+        fin = dlg.exec()
 
         prev_name = input_prev_name.text()
         new_name = input_new_name.text()
-        if ok:
+        if fin:
             self.controller.update('Category', {'prev_name': prev_name,
                                                 'new_name': new_name})
             self.refresh_categories()
